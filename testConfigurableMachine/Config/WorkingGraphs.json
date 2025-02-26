@@ -1,0 +1,616 @@
+{
+  "graphs": {
+    "HexapodLeft": {
+      "nodes": [
+        "Home",
+        "LensGrip",
+        "ApproachLensGrip",
+        "LensPlace",
+        "ApproachLensPlace",
+        "AvoidDispenser",
+        "LeftSeeProbe",
+        "RejectLens",
+        "AboveLensGrip",
+        "AboveLensPlace"
+      ],
+      "edges": [
+        {
+          "from": "Home",
+          "to": "ApproachLensGrip",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "ApproachLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "ParkInside",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "ApproachLensGrip",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "ApproachLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "LensGrip",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensPlace",
+          "to": "LensPlace",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "AvoidDispenser",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "LeftSeeProbe",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "RejectLens",
+          "weight": 1
+        },
+        {
+          "from": "LensGrip",
+          "to": "AboveLensGrip",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "AboveLensGrip",
+          "weight": 1
+        },
+        {
+          "from": "LensPlace",
+          "to": "AboveLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "AboveLensPlace",
+          "weight": 1
+        }
+
+      ]
+    },
+    "HexapodBottom": {
+      "nodes": [ "Home" ],
+      "edges": [
+        {
+          "from": "Home",
+          "to": "Home",
+          "weight": 1
+        }
+      ]
+    },
+
+    "HexapodRight": {
+      "nodes": [
+        "Home",
+        "LensGrip",
+        "ApproachLensGrip",
+        "LensPlace",
+        "ApproachLensPlace",
+        "AvoidDispenser",
+        "SeeProbe",
+        "RejectLens",
+        "RightSeeProbe",
+        "AboveLensGrip",
+        "AboveLensPlace"
+      ],
+      "edges": [
+        {
+          "from": "Home",
+          "to": "ApproachLensGrip",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "ParkInside",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "ApproachLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "LensGrip",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "ApproachLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensPlace",
+          "to": "LensPlace",
+          "weight": 1
+        },
+        {
+          "from": "LensPlace",
+          "to": "ApproachLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "AvoidDispenser",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "SeeProbe",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "RejectLens",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensPlace",
+          "to": "RightSeeProbe",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "RightSeeProbe",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensGrip",
+          "to": "RightSeeProbe",
+          "weight": 1
+        },
+        {
+          "from": "LensGrip",
+          "to": "AboveLensGrip",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "AboveLensGrip",
+          "weight": 1
+        },
+        {
+          "from": "LensPlace",
+          "to": "AboveLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "Home",
+          "to": "AboveLensPlace",
+          "weight": 1
+        }
+      ]
+
+    },
+    "Gantry": {
+      "nodes": [
+        "Home",
+        "UV",
+        "CamDispense1",
+        "CamDispense2",
+        "Dispense1",
+        "Dispense2",
+        "Dispense1Safe",
+        "Dispense2Safe",
+        "PreDispense",
+        "MidFront",
+        "MidCenter",
+        "MidBack",
+        "SeeSLED",
+        "SeePIC",
+        "SeeGripCollLens",
+        "SeeGripFocusLens",
+        "SeeFocusLens",
+        "SeeCollimateLens",
+        "Fiducial1",
+        "Fiducial2",
+        "Fiducial3",
+        "SledPattern",
+        "PicPattern",
+        "CamSeeNumber",
+        "SNViewing"
+      ],
+      "edges": [
+        {
+          "from": "Home",
+          "to": "MidBack",
+          "weight": 1
+        },
+        {
+          "from": "MidBack",
+          "to": "MidCenter",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "MidFront",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeeSLED",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeePIC",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "CalDot",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "CamSeeDot",
+          "weight": 1
+        },
+        {
+          "from": "CalDot",
+          "to": "CamSeeDot",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeeGripCollLens",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeeGripFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "SeeSLED",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "SeeFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "SeeCollimateLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeSLED",
+          "to": "SeeFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeSLED",
+          "to": "SeeCollimateLens",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "UV",
+          "weight": 1
+        },
+        {
+          "from": "MidFront",
+          "to": "PreDispense",
+          "weight": 1
+        },
+        {
+          "from": "PreDispense",
+          "to": "Dispense1Safe",
+          "weight": 1
+        },
+        {
+          "from": "PreDispense",
+          "to": "Dispense2Safe",
+          "weight": 1
+        },
+        {
+          "from": "Dispense1Safe",
+          "to": "Dispense1",
+          "weight": 1
+        },
+        {
+          "from": "Dispense2Safe",
+          "to": "Dispense2",
+          "weight": 1
+        },
+        {
+          "from": "PreDispense",
+          "to": "CamDispense1",
+          "weight": 1
+        },
+        {
+          "from": "PreDispense",
+          "to": "CamDispense2",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeeGripCollLens",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeeGripFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripCollLens",
+          "to": "SeeGripFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeeFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SeeCollimateLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeFocusLens",
+          "to": "SeeCollimateLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripCollLens",
+          "to": "SeeCollimateLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripCollLens",
+          "to": "SeeFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripFocusLens",
+          "to": "SeeFocusLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripFocusLens",
+          "to": "SeeCollimateLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripFocusLens",
+          "to": "SeeGripCollLens",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripFocusLens",
+          "to": "SeePIC",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripFocusLens",
+          "to": "SeeSLED",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripCollLens",
+          "to": "SeePIC",
+          "weight": 1
+        },
+        {
+          "from": "SeeGripCollLens",
+          "to": "SeeSLED",
+          "weight": 1
+        },
+        {
+          "from": "SeeSLED",
+          "to": "Fiducial1",
+          "weight": 1
+        },
+        {
+          "from": "SeeSLED",
+          "to": "Fiducial2",
+          "weight": 1
+        },
+        {
+          "from": "SeeSLED",
+          "to": "Fiducial3",
+          "weight": 1
+        },
+        {
+          "from": "SeeSLED",
+          "to": "SledPattern",
+          "weight": 1
+        },
+        {
+          "from": "SeeSLED",
+          "to": "PicPattern",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "Fiducial1",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "Fiducial2",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "Fiducial3",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "SledPattern",
+          "weight": 1
+        },
+        {
+          "from": "SeePIC",
+          "to": "PicPattern",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "Fiducial1",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "Fiducial2",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "Fiducial3",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SledPattern",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "PicPattern",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial1",
+          "to": "Fiducial2",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial1",
+          "to": "Fiducial3",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial2",
+          "to": "Fiducial3",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial1",
+          "to": "PicPattern",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial2",
+          "to": "PicPattern",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial3",
+          "to": "PicPattern",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial1",
+          "to": "SledPattern",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial2",
+          "to": "SledPattern",
+          "weight": 1
+        },
+        {
+          "from": "Fiducial3",
+          "to": "SledPattern",
+          "weight": 1
+        },
+        {
+          "from": "MidFront",
+          "to": "Disp_Fid1",
+          "weight": 1
+        },
+        {
+          "from": "MidFront",
+          "to": "Disp_Fid2",
+          "weight": 1
+        },
+        {
+          "from": "MidFront",
+          "to": "Disp_Fid3",
+          "weight": 1
+        },
+        {
+          "from": "MidFront",
+          "to": "Disp_Loc1",
+          "weight": 1
+        },
+        {
+          "from": "MidFront",
+          "to": "Disp_Loc2",
+          "weight": 1
+        },
+        {
+          "from": "Disp_Loc1",
+          "to": "Disp_Loc2",
+          "weight": 1
+        },
+        {
+          "from": "Disp_Fid1",
+          "to": "Disp_Loc1",
+          "weight": 1
+        },
+        {
+          "from": "Disp_Fid2",
+          "to": "Disp_Loc1",
+          "weight": 1
+        },
+        {
+          "from": "Disp_Fid3",
+          "to": "Disp_Loc1",
+          "weight": 1
+        },
+        {
+          "from": "Disp_Fid1",
+          "to": "Disp_Loc2",
+          "weight": 1
+        },
+        {
+          "from": "Disp_Fid2",
+          "to": "Disp_Loc2",
+          "weight": 1
+        },
+        {
+          "from": "Disp_Fid3",
+          "to": "Disp_Loc2",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "CamSeeNumber",
+          "weight": 1
+        },
+        {
+          "from": "MidCenter",
+          "to": "SNViewing",
+          "weight": 1
+        }
+      ]
+    }
+  }
+}

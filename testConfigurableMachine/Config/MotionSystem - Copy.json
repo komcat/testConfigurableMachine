@@ -1,0 +1,33 @@
+{
+  "MotionDevices": {
+    "hex-left": {
+      "IsEnabled": false,
+      "IpAddress": "192.168.0.10",
+      "Port": 50000,
+      "Id":0,
+      "Name":"hex-left"
+    },
+    "hex-bottom": {
+      "IsEnabled": false,
+      "IpAddress": "192.168.0.20",
+      "Port": 50000,
+      "Id":1,
+      "Name":"hex-bottom"
+    },
+    "hex-right": {
+      "IsEnabled": true,
+      "IpAddress": "192.168.0.30",
+      "Port": 50000,
+      "Id":2,
+      "Name": "hex-right"
+    },
+    "gantry-main":
+    {
+      "IsEnabled": true,
+      "IpAddress": "192.168.0.30",
+      "Port": 50000,
+      "Id":2,
+      "Name": "gantry-main"
+    }
+  }
+}

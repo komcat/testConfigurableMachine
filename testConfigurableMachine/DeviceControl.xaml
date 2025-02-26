@@ -1,0 +1,227 @@
+﻿<UserControl x:Class="testConfigurableMachine.DeviceControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:testConfigurableMachine"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Column - Manual Axis Control -->
+        <GroupBox Header="Manual Axis Control" Grid.Column="0" Margin="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Orientation="Vertical">
+                    <!-- Device Info -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Device ID: " FontWeight="Bold"/>
+                        <TextBlock x:Name="DeviceIdTextBlock" Text="--"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Connection: " FontWeight="Bold"/>
+                        <TextBlock x:Name="ConnectionStatusTextBlock" Text="Disconnected" Foreground="Red"/>
+                    </StackPanel>
+
+                    <!-- X Axis Control -->
+                    <GroupBox Header="X Axis" Margin="0,5,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Position:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="XPositionTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Step:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBox x:Name="XStepTextBox" Text="1.0" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="5,5,0,0">
+                                <Button Content="-" Width="30" Click="XMinus_Click"/>
+                                <Button Content="+" Width="30" Margin="5,0,0,0" Click="XPlus_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Y Axis Control -->
+                    <GroupBox Header="Y Axis" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Position:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="YPositionTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Step:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBox x:Name="YStepTextBox" Text="1.0" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="5,5,0,0">
+                                <Button Content="-" Width="30" Click="YMinus_Click"/>
+                                <Button Content="+" Width="30" Margin="5,0,0,0" Click="YPlus_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Z Axis Control -->
+                    <GroupBox Header="Z Axis" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Position:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ZPositionTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Step:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBox x:Name="ZStepTextBox" Text="1.0" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="5,5,0,0">
+                                <Button Content="-" Width="30" Click="ZMinus_Click"/>
+                                <Button Content="+" Width="30" Margin="5,0,0,0" Click="ZPlus_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Additional Hexapod Axes (if applicable) -->
+                    <GroupBox x:Name="HexapodAxesGroup" Header="Hexapod Specific Axes" Margin="0,0,0,10">
+                        <!-- U Axis Control -->
+                        <StackPanel>
+                            <GroupBox Header="U Axis" Margin="0,5,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="Position:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="UPositionTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="Step:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                                    <TextBox x:Name="UStepTextBox" Text="0.5" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
+                                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="5,5,0,0">
+                                        <Button Content="-" Width="30" Click="UMinus_Click"/>
+                                        <Button Content="+" Width="30" Margin="5,0,0,0" Click="UPlus_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </GroupBox>
+
+                            <!-- V Axis Control -->
+                            <GroupBox Header="V Axis" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="Position:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="VPositionTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="Step:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                                    <TextBox x:Name="VStepTextBox" Text="0.5" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
+                                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="5,5,0,0">
+                                        <Button Content="-" Width="30" Click="VMinus_Click"/>
+                                        <Button Content="+" Width="30" Margin="5,0,0,0" Click="VPlus_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </GroupBox>
+
+                            <!-- W Axis Control -->
+                            <GroupBox Header="W Axis" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="Position:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="WPositionTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="Step:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                                    <TextBox x:Name="WStepTextBox" Text="0.5" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
+                                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="5,5,0,0">
+                                        <Button Content="-" Width="30" Click="WMinus_Click"/>
+                                        <Button Content="+" Width="30" Margin="5,0,0,0" Click="WPlus_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </GroupBox>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Control Buttons -->
+                    <Button Content="Home Device" Click="HomeDevice_Click" Margin="0,10,0,0" Padding="5"/>
+                    <Button Content="Stop Device" Click="StopDevice_Click" Margin="0,10,0,0" Padding="5"/>
+                </StackPanel>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- Right Column - Predefined Positions -->
+        <GroupBox Header="Predefined Positions" Grid.Column="1" Margin="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Position Filtering -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="Filter by name:" Margin="0,0,0,5"/>
+                    <TextBox x:Name="FilterTextBox" TextChanged="FilterTextBox_TextChanged" Margin="0,0,0,5"/>
+                </StackPanel>
+
+                <!-- Positions List -->
+                <ListView x:Name="PositionsListView" Grid.Row="1" SelectionChanged="PositionsListView_SelectionChanged">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Position Name" DisplayMemberBinding="{Binding Name}" Width="120"/>
+                            <GridViewColumn Header="X" DisplayMemberBinding="{Binding Position.X, StringFormat=F3}" Width="70"/>
+                            <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Position.Y, StringFormat=F3}" Width="70"/>
+                            <GridViewColumn Header="Z" DisplayMemberBinding="{Binding Position.Z, StringFormat=F3}" Width="70"/>
+                            <GridViewColumn Header="U" DisplayMemberBinding="{Binding Position.U, StringFormat=F3}" Width="70"/>
+                            <GridViewColumn Header="V" DisplayMemberBinding="{Binding Position.V, StringFormat=F3}" Width="70"/>
+                            <GridViewColumn Header="W" DisplayMemberBinding="{Binding Position.W, StringFormat=F3}" Width="70"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <!-- Move To Position Button -->
+                <Button Grid.Row="2" Content="Move To Selected Position" Click="MoveToPosition_Click" Margin="0,10,0,0" Padding="5"/>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>
