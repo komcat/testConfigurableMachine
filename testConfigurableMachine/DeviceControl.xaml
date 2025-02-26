@@ -219,8 +219,40 @@
                     </ListView.View>
                 </ListView>
 
-                <!-- Move To Position Button -->
-                <Button Grid.Row="2" Content="Move To Selected Position" Click="MoveToPosition_Click" Margin="0,10,0,0" Padding="5"/>
+                <!-- Position Control Buttons -->
+                <Grid Grid.Row="2" Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0" Content="Move To Selected Position" Click="MoveToPosition_Click" Padding="5"/>
+
+                    <!-- Teach Position Controls -->
+                    <GroupBox Grid.Row="1" Header="Teach Position" Margin="0,10,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Enter position name:" Margin="0,0,0,5"/>
+                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="TeachPositionNameTextBox" Margin="0,0,5,0"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="Teach" Click="TeachPosition_Click" Padding="10,0"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Save and refresh buttons -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Center">
+                        <Button Content="Save Positions" Click="SavePositions_Click" Padding="10,5" Margin="0,0,10,0"/>
+                        <Button Content="Refresh Positions" Click="RefreshPositions_Click" Padding="10,5"/>
+                    </StackPanel>
+                </Grid>
             </Grid>
         </GroupBox>
     </Grid>

@@ -302,6 +302,110 @@ namespace testConfigurableMachine
             }
         }
 
+        private async void TeachPosition_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string positionName = TeachPositionNameTextBox.Text.Trim();
+
+                // Validate position name
+                if (string.IsNullOrWhiteSpace(positionName))
+                {
+                    MessageBox.Show("Please enter a name for the position.", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                // Confirm if position already exists
+                if (_device.Positions.ContainsKey(positionName))
+                {
+                    var result = MessageBox.Show($"Position '{positionName}' already exists. Do you want to overwrite it?",
+                        "Confirm Overwrite", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result != MessageBoxResult.Yes)
+                        return;
+                }
+
+                // Get current position
+                var currentPosition = await _motionKernel.GetCurrentPositionAsync(_deviceId);
+                if (currentPosition == null)
+                {
+                    MessageBox.Show("Failed to get current position.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Add or update the position
+                bool success = await _motionKernel.TeachPositionAsync(_deviceId, positionName, currentPosition);
+
+                if (success)
+                {
+                    // Directly update the UI collection without waiting for refresh
+                    var existingItem = Positions.FirstOrDefault(p => p.Name == positionName);
+                    if (existingItem != null)
+                    {
+                        // Update existing item
+                        existingItem.Position = currentPosition;
+                    }
+                    else
+                    {
+                        // Add new item
+                        Positions.Add(new PositionItem { Name = positionName, Position = currentPosition });
+                    }
+
+                    // Force ListView to refresh
+                    PositionsListView.Items.Refresh();
+
+                    MessageBox.Show($"Position '{positionName}' saved successfully.", "Success",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Clear the name textbox
+                    TeachPositionNameTextBox.Text = string.Empty;
+                }
+                else
+                {
+                    MessageBox.Show($"Failed to save position '{positionName}'.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error teaching position");
+                MessageBox.Show($"Error teaching position: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void SavePositions_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                bool success = await _motionKernel.SavePositionsToJsonAsync();
+
+                if (success)
+                {
+                    MessageBox.Show("Positions saved to JSON file successfully.", "Success",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to save positions to JSON file.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error saving positions to JSON");
+                MessageBox.Show($"Error saving positions: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void RefreshPositions_Click(object sender, RoutedEventArgs e)
+        {
+            await RefreshPositionsAsync();
+        }
+
         #endregion
 
         #region Position List Handling
@@ -321,6 +425,9 @@ namespace testConfigurableMachine
                 var filteredPositions = Positions.Where(p => p.Name.ToLower().Contains(filterText)).ToList();
                 PositionsListView.ItemsSource = filteredPositions;
             }
+
+            // Force the ListView to refresh its display
+            PositionsListView.Items.Refresh();
         }
 
         private void PositionsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -371,6 +478,61 @@ namespace testConfigurableMachine
             {
                 _logger.Error(ex, "Error moving axis {AxisIndex} by {Step}", axisIndex, step);
                 MessageBox.Show($"Error moving axis: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task RefreshPositionsAsync()
+        {
+            try
+            {
+                // Reload positions from JSON file - this reads from disk
+                bool reloadSuccess = _motionKernel.ReloadPositionsFromJson();
+
+                // Find the device in the updated list
+                var updatedDevice = _motionKernel.GetDevices().FirstOrDefault(d => d.Id == _deviceId);
+                if (updatedDevice != null)
+                {
+                    // Update the device reference
+                    _device = updatedDevice;
+
+                    // Clear and repopulate positions
+                    Positions.Clear();
+
+                    // Need to add the positions directly from the device object which has the latest data
+                    foreach (var position in _device.Positions)
+                    {
+                        Positions.Add(new PositionItem { Name = position.Key, Position = position.Value });
+                    }
+
+                    // Force the ListView to refresh its display
+                    PositionsListView.Items.Refresh();
+
+                    // If there was a filter applied, reapply it
+                    string currentFilter = FilterTextBox.Text;
+                    if (!string.IsNullOrWhiteSpace(currentFilter))
+                    {
+                        // Filter positions by name
+                        var filteredPositions = Positions.Where(p => p.Name.ToLower().Contains(currentFilter.ToLower())).ToList();
+                        PositionsListView.ItemsSource = filteredPositions;
+                    }
+                    else
+                    {
+                        // Make sure the source is set to the full collection
+                        PositionsListView.ItemsSource = Positions;
+                    }
+
+                    _logger.Information("Refreshed positions list for device {DeviceId}", _deviceId);
+                }
+                else
+                {
+                    _logger.Warning("Device {DeviceId} not found during refresh", _deviceId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error refreshing positions");
+                MessageBox.Show($"Error refreshing positions: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

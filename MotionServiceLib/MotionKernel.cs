@@ -63,7 +63,7 @@ namespace MotionServiceLib
     /// </summary>
     public class MotionKernel : IDisposable
     {
-        
+
         private readonly MotionSystemConfig _config;
         private readonly Dictionary<string, IMotionController> _controllers = new Dictionary<string, IMotionController>();
         private bool _disposed;
@@ -73,7 +73,7 @@ namespace MotionServiceLib
             // Get a contextualized logger
             _logger = Log.ForContext<MotionKernel>();
 
-            _config =LoadConfiguration();
+            _config = LoadConfiguration();
         }
 
         #region Configuration Management
@@ -416,6 +416,193 @@ namespace MotionServiceLib
         {
             return _config.Devices;
         }
+        // Add these methods to the MotionKernel class in MotionKernel.cs
+
+        /// <summary>
+        /// Teaches a new position for a device (saves current position with a name)
+        /// </summary>
+        /// <param name="deviceId">The device ID</param>
+        /// <param name="positionName">The name for the position</param>
+        /// <param name="position">The position to save (if null, uses current position)</param>
+        /// <returns>True if successful, false otherwise</returns>
+        public async Task<bool> TeachPositionAsync(string deviceId, string positionName, Position position = null)
+        {
+            try
+            {
+                if (!_controllers.TryGetValue(deviceId, out var controller))
+                {
+                    _logger.Warning("Cannot teach position: Device {DeviceId} not found or not enabled", deviceId);
+                    return false;
+                }
+
+                var device = _config.Devices.Find(d => d.Id == deviceId);
+                if (device == null)
+                {
+                    _logger.Warning("Cannot teach position: Device {DeviceId} configuration not found", deviceId);
+                    return false;
+                }
+
+                // If position is not provided, get the current position
+                if (position == null)
+                {
+                    position = await controller.GetCurrentPositionAsync();
+                    if (position == null)
+                    {
+                        _logger.Warning("Cannot teach position: Failed to get current position for device {DeviceId}", deviceId);
+                        return false;
+                    }
+                }
+
+                // Make a deep copy of the position to avoid reference issues
+                Position positionCopy = new Position
+                {
+                    X = position.X,
+                    Y = position.Y,
+                    Z = position.Z,
+                    U = position.U,
+                    V = position.V,
+                    W = position.W
+                };
+
+                // Add or update the position
+                if (device.Positions.ContainsKey(positionName))
+                {
+                    device.Positions[positionName] = positionCopy;
+                    _logger.Information("Updated position {PositionName} for device {DeviceId}", positionName, deviceId);
+                }
+                else
+                {
+                    device.Positions.Add(positionName, positionCopy);
+                    _logger.Information("Added new position {PositionName} for device {DeviceId}", positionName, deviceId);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error teaching position {PositionName} for device {DeviceId}", positionName, deviceId);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Saves all positions to a JSON file
+        /// </summary>
+        /// <returns>True if successful, false otherwise</returns>
+        public async Task<bool> SavePositionsToJsonAsync()
+        {
+            try
+            {
+                // Create a PositionsData object to match the format of the JSON file
+                var positionsData = new PositionsData
+                {
+                    Hexapods = new List<HexapodPositionSet>(),
+                    Gantries = new List<GantryPositionSet>()
+                };
+
+                // Add all devices with their positions
+                foreach (var device in _config.Devices)
+                {
+                    if (device.Type == MotionDeviceType.Hexapod)
+                    {
+                        positionsData.Hexapods.Add(new HexapodPositionSet
+                        {
+                            HexapodId = int.Parse(device.Id),
+                            Positions = device.Positions
+                        });
+                    }
+                    else if (device.Type == MotionDeviceType.Gantry)
+                    {
+                        positionsData.Gantries.Add(new GantryPositionSet
+                        {
+                            GantryId = int.Parse(device.Id),
+                            Positions = device.Positions
+                        });
+                    }
+                }
+
+                // Serialize to JSON
+                string json = System.Text.Json.JsonSerializer.Serialize(positionsData,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+
+                // Save to file (use Task.Run to make the file I/O asynchronous)
+                string filePath = System.IO.Path.Combine("Config", "WorkingPositions.json");
+                await Task.Run(() => System.IO.File.WriteAllText(filePath, json));
+
+                _logger.Information("Saved positions to {FilePath}", filePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error saving positions to JSON");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Reloads positions from the JSON file
+        /// </summary>
+        /// <returns>True if successful, false otherwise</returns>
+        public bool ReloadPositionsFromJson()
+        {
+            try
+            {
+                string filePath = System.IO.Path.Combine("Config", "WorkingPositions.json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    _logger.Warning("Positions file not found at {FilePath}", filePath);
+                    return false;
+                }
+
+                string jsonContent = System.IO.File.ReadAllText(filePath);
+                var positionsData = System.Text.Json.JsonSerializer.Deserialize<PositionsData>(jsonContent);
+
+                if (positionsData == null)
+                {
+                    _logger.Warning("Failed to deserialize positions data from {FilePath}", filePath);
+                    return false;
+                }
+
+                // Update positions for all devices
+                foreach (var device in _config.Devices)
+                {
+                    if (device.Type == MotionDeviceType.Hexapod)
+                    {
+                        int hexapodId;
+                        if (int.TryParse(device.Id, out hexapodId))
+                        {
+                            var hexapodPositions = positionsData.Hexapods?.Find(h => h.HexapodId == hexapodId)?.Positions;
+                            if (hexapodPositions != null)
+                            {
+                                device.Positions = new Dictionary<string, Position>(hexapodPositions);
+                            }
+                        }
+                    }
+                    else if (device.Type == MotionDeviceType.Gantry)
+                    {
+                        int gantryId;
+                        if (int.TryParse(device.Id, out gantryId))
+                        {
+                            var gantryPositions = positionsData.Gantries?.Find(g => g.GantryId == gantryId)?.Positions;
+                            if (gantryPositions != null)
+                            {
+                                device.Positions = new Dictionary<string, Position>(gantryPositions);
+                            }
+                        }
+                    }
+                }
+
+                _logger.Information("Reloaded positions from {FilePath}", filePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error reloading positions from JSON");
+                return false;
+            }
+        }
+
+
 
         /// <summary>
         /// Checks if a controller exists for the specified device
