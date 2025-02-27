@@ -47,7 +47,7 @@ namespace MotionServiceLib
             _logger = Log.ForContext<HexapodController>();
 
         }
-
+        
         /// <summary>
         /// Initializes the connection to the hexapod device
         /// </summary>
@@ -563,7 +563,15 @@ namespace MotionServiceLib
                 throw;
             }
         }
-
+        // Add this to HexapodController.cs
+        public Task SetSpeedAsync(double speed)
+        {
+            return SetSystemVelocityAsync(speed);
+        }// Add this to HexapodController.cs
+        public Task<double> GetSpeedAsync()
+        {
+            return GetSystemVelocityAsync();
+        }
         /// <summary>
         /// Gets the system velocity
         /// </summary>
@@ -584,7 +592,7 @@ namespace MotionServiceLib
                     }
                 });
 
-                _logger.Debug("Hexapod {DeviceName} system velocity: {Velocity}", _device.Name, velocity);
+                //_logger.Debug("Hexapod {DeviceName} system velocity: {Velocity}", _device.Name, velocity);
                 return velocity;
             }
             catch (Exception ex)

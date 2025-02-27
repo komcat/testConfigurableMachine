@@ -216,6 +216,10 @@ namespace MotionServiceLib
                         _controllers[device.Id] = controller;
                         _logger.Information("Successfully initialized device {DeviceId} ({DeviceName})",
                             device.Id, device.Name);
+
+                        //log device velocity
+                        double? speed = await controller.GetSpeedAsync();
+                        _logger.Information("device {DeviceId}:{DeviceName} velocity : {speed}", device.Id, device.Name, speed);
                     }
                     else
                     {
@@ -235,7 +239,16 @@ namespace MotionServiceLib
                 _controllers.Count, enabledDevices);
         }
         // Part of MotionKernel.cs, showing the updated CreateController method
+        // Add this to MotionKernel.cs if it doesn't exist
+        public bool IsDeviceConnected(string deviceId)
+        {
+            if (!_controllers.TryGetValue(deviceId, out var controller))
+            {
+                return false;
+            }
 
+            return controller.IsConnected;
+        }
         private IMotionController CreateController(MotionDevice device)
         {
             _logger.Information("Creating controller for device {DeviceId} ({DeviceName}) of type {DeviceType}",
@@ -614,6 +627,53 @@ namespace MotionServiceLib
             return _controllers.ContainsKey(deviceId);
         }
 
+
+        // Add this to MotionKernel.cs
+        public async Task<bool> SetDeviceSpeedAsync(string deviceId, double speed)
+        {
+            if (!_controllers.TryGetValue(deviceId, out var controller))
+            {
+                _logger.Warning("Cannot set speed: Device {DeviceId} not found or not enabled", deviceId);
+                return false;
+            }
+
+            try
+            {
+                _logger.Information("Setting speed for device {DeviceId} to {Speed}", deviceId, speed);
+                await controller.SetSpeedAsync(speed);
+                _logger.Information("Successfully set speed for device {DeviceId}", deviceId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error setting speed for device {DeviceId}", deviceId);
+                return false;
+            }
+        }
+
+        // Add this to MotionKernel.cs
+        public async Task<double?> GetDeviceSpeedAsync(string deviceId)
+        {
+            if (!_controllers.TryGetValue(deviceId, out var controller))
+            {
+                _logger.Warning("Cannot get speed: Device {DeviceId} not found or not enabled", deviceId);
+                return null;
+            }
+
+            try
+            {
+                //_logger.Debug("Getting speed for device {DeviceId}", deviceId);
+                double speed = await controller.GetSpeedAsync();
+                //_logger.Debug("Device {DeviceId} current speed: {Speed}", deviceId, speed);
+                return speed;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting speed for device {DeviceId}", deviceId);
+                return null;
+            }
+        }
+
         #endregion
 
         #region IDisposable Implementation
@@ -677,6 +737,8 @@ namespace MotionServiceLib
         Task StopAsync();
         Task<Position> GetCurrentPositionAsync();
         Task HomeAsync();
+        Task SetSpeedAsync(double speed); // New method
+        Task<double> GetSpeedAsync(); // New method to get the current speed
     }
 
     // Implementation for Hexapod devices

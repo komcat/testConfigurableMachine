@@ -90,6 +90,58 @@ namespace MotionServiceLib
                 throw;
             }
         }
+        // Add this to GantryController.cs
+        public async Task SetSpeedAsync(double speed)
+        {
+            ValidateConnection();
+
+            try
+            {
+                _logger.Information("Setting speed for Gantry {DeviceName} to {Speed}",
+                    _device.Name, speed);
+
+                // Set speed for all axes
+                await Task.Run(() =>
+                {
+                    // Use ACS API to set axis velocity
+                    // Typically we'd need to set for each axis
+                    _acs.Ch.SetVelocity((ACS.SPiiPlusNET.Axis)AXIS_X, speed);
+                    _acs.Ch.SetVelocity((ACS.SPiiPlusNET.Axis)AXIS_Y, speed);
+                    _acs.Ch.SetVelocity((ACS.SPiiPlusNET.Axis)AXIS_Z, speed);
+                });
+
+                _logger.Information("Successfully set speed for Gantry {DeviceName}", _device.Name);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error setting speed for Gantry {DeviceName}", _device.Name);
+                throw;
+            }
+        }
+
+        // Add this to GantryController.cs
+        public async Task<double> GetSpeedAsync()
+        {
+            ValidateConnection();
+
+            try
+            {
+                // Get the speed of the X axis as representative
+                // You might want to get all axes and average or take the minimum
+                double speed = await Task.Run(() =>
+                {
+                    return _acs.Ch.GetVelocity((ACS.SPiiPlusNET.Axis)AXIS_X);
+                });
+
+                //_logger.Debug("Gantry {DeviceName} current speed: {Speed}", _device.Name, speed);
+                return speed;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting speed for Gantry {DeviceName}", _device.Name);
+                throw;
+            }
+        }
 
         /// <summary>
         /// Moves the gantry to the specified absolute position

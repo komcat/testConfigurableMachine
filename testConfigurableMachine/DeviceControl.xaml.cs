@@ -83,6 +83,9 @@ namespace testConfigurableMachine
                     var position = await _motionKernel.GetCurrentPositionAsync(_deviceId);
                     if (position != null)
                     {
+                        // Get current velocity
+                        var velocity = await _motionKernel.GetDeviceSpeedAsync(_deviceId);
+
                         // Update UI on the UI thread
                         Dispatcher.Invoke(() =>
                         {
@@ -95,6 +98,12 @@ namespace testConfigurableMachine
                                 UPositionTextBlock.Text = position.U.ToString("F3");
                                 VPositionTextBlock.Text = position.V.ToString("F3");
                                 WPositionTextBlock.Text = position.W.ToString("F3");
+                            }
+
+                            // Update velocity display
+                            if (velocity.HasValue)
+                            {
+                                VelocityTextBlock.Text = velocity.Value.ToString("F2");
                             }
 
                             UpdateConnectionStatus(true);
@@ -113,6 +122,55 @@ namespace testConfigurableMachine
             }
         }
 
+        private async void SetVelocity_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!_motionKernel.IsDeviceConnected(_deviceId))
+                {
+                    MessageBox.Show("Device is not connected.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                if (!double.TryParse(VelocityTextBox.Text, out double velocity))
+                {
+                    MessageBox.Show("Please enter a valid velocity value.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Set minimum and maximum velocity limits
+                double minVelocity = 1.0;  // Adjust based on your system
+                double maxVelocity = 100.0; // Adjust based on your system
+
+                if (velocity < minVelocity || velocity > maxVelocity)
+                {
+                    MessageBox.Show($"Velocity must be between {minVelocity} and {maxVelocity}.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                bool success = await _motionKernel.SetDeviceSpeedAsync(_deviceId, velocity);
+
+                if (success)
+                {
+                    _logger.Information("Successfully set velocity for device {DeviceId} to {Velocity}",
+                        _deviceId, velocity);
+                }
+                else
+                {
+                    MessageBox.Show("Failed to set velocity.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error setting velocity for device {DeviceId}", _deviceId);
+                MessageBox.Show($"Error setting velocity: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         private void UpdateConnectionStatus(bool isConnected)
         {
             ConnectionStatusTextBlock.Text = isConnected ? "Connected" : "Disconnected";

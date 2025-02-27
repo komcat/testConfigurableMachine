@@ -102,6 +102,28 @@
                         </Grid>
                     </GroupBox>
 
+                    <!-- Velocity Control -->
+                    <GroupBox Header="Velocity Control" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Current:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="VelocityTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+
+                            <TextBlock Text="New Value:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBox x:Name="VelocityTextBox" Text="50.0" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
+                            <Button Content="Set" Grid.Row="1" Grid.Column="2" Width="60" Margin="5,5,0,0" Click="SetVelocity_Click"/>
+                        </Grid>
+                    </GroupBox>
+
                     <!-- Additional Hexapod Axes (if applicable) -->
                     <GroupBox x:Name="HexapodAxesGroup" Header="Hexapod Specific Axes" Margin="0,0,0,10">
                         <!-- U Axis Control -->
