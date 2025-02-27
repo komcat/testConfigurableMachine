@@ -27,6 +27,29 @@
                         <TextBlock x:Name="ConnectionStatusTextBlock" Text="Disconnected" Foreground="Red"/>
                     </StackPanel>
 
+                    <!-- Velocity Control -->
+                    <GroupBox Header="Velocity Control" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="Current:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="VelocityTextBlock" Text="0.0" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="units/s" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Set:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                            <TextBox x:Name="VelocityTextBox" Text="10.0" Grid.Row="1" Grid.Column="1" Margin="5,5,5,0"/>
+                            <Button Content="Apply" Grid.Row="1" Grid.Column="2" Margin="0,5,0,0" Padding="5,0" Click="SetVelocity_Click"/>
+                        </Grid>
+                    </GroupBox>
+
                     <!-- X Axis Control -->
                     <GroupBox Header="X Axis" Margin="0,5,0,10">
                         <Grid>
@@ -99,28 +122,6 @@
                                 <Button Content="-" Width="30" Click="ZMinus_Click"/>
                                 <Button Content="+" Width="30" Margin="5,0,0,0" Click="ZPlus_Click"/>
                             </StackPanel>
-                        </Grid>
-                    </GroupBox>
-
-                    <!-- Velocity Control -->
-                    <GroupBox Header="Velocity Control" Margin="0,0,0,10">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Text="Current:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="VelocityTextBlock" Text="0.000" Grid.Row="0" Grid.Column="1" Margin="5,0" VerticalAlignment="Center"/>
-
-                            <TextBlock Text="New Value:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,5,0,0"/>
-                            <TextBox x:Name="VelocityTextBox" Text="50.0" Grid.Row="1" Grid.Column="1" Margin="5,5,0,0"/>
-                            <Button Content="Set" Grid.Row="1" Grid.Column="2" Width="60" Margin="5,5,0,0" Click="SetVelocity_Click"/>
                         </Grid>
                     </GroupBox>
 
@@ -212,70 +213,87 @@
         </GroupBox>
 
         <!-- Right Column - Predefined Positions -->
-        <GroupBox Header="Predefined Positions" Grid.Column="1" Margin="5">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                <!-- Position Filtering -->
-                <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                    <TextBlock Text="Filter by name:" Margin="0,0,0,5"/>
-                    <TextBox x:Name="FilterTextBox" TextChanged="FilterTextBox_TextChanged" Margin="0,0,0,5"/>
-                </StackPanel>
-
-                <!-- Positions List -->
-                <ListView x:Name="PositionsListView" Grid.Row="1" SelectionChanged="PositionsListView_SelectionChanged">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Position Name" DisplayMemberBinding="{Binding Name}" Width="120"/>
-                            <GridViewColumn Header="X" DisplayMemberBinding="{Binding Position.X, StringFormat=F3}" Width="70"/>
-                            <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Position.Y, StringFormat=F3}" Width="70"/>
-                            <GridViewColumn Header="Z" DisplayMemberBinding="{Binding Position.Z, StringFormat=F3}" Width="70"/>
-                            <GridViewColumn Header="U" DisplayMemberBinding="{Binding Position.U, StringFormat=F3}" Width="70"/>
-                            <GridViewColumn Header="V" DisplayMemberBinding="{Binding Position.V, StringFormat=F3}" Width="70"/>
-                            <GridViewColumn Header="W" DisplayMemberBinding="{Binding Position.W, StringFormat=F3}" Width="70"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-
-                <!-- Position Control Buttons -->
-                <Grid Grid.Row="2" Margin="0,10,0,0">
+            <!-- Position Management -->
+            <GroupBox Header="Predefined Positions" Grid.Row="0" Margin="5">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0" Content="Move To Selected Position" Click="MoveToPosition_Click" Padding="5"/>
-
-                    <!-- Teach Position Controls -->
-                    <GroupBox Grid.Row="1" Header="Teach Position" Margin="0,10,0,0">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Enter position name:" Margin="0,0,0,5"/>
-                            <TextBox Grid.Row="1" Grid.Column="0" x:Name="TeachPositionNameTextBox" Margin="0,0,5,0"/>
-                            <Button Grid.Row="1" Grid.Column="1" Content="Teach" Click="TeachPosition_Click" Padding="10,0"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <!-- Save and refresh buttons -->
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Center">
-                        <Button Content="Save Positions" Click="SavePositions_Click" Padding="10,5" Margin="0,0,10,0"/>
-                        <Button Content="Refresh Positions" Click="RefreshPositions_Click" Padding="10,5"/>
+                    <!-- Position Filtering -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="Filter by name:" Margin="0,0,0,5"/>
+                        <TextBox x:Name="FilterTextBox" TextChanged="FilterTextBox_TextChanged" Margin="0,0,0,5"/>
                     </StackPanel>
+
+                    <!-- Positions List -->
+                    <ListView x:Name="PositionsListView" Grid.Row="1" SelectionChanged="PositionsListView_SelectionChanged">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Position Name" DisplayMemberBinding="{Binding Name}" Width="120"/>
+                                <GridViewColumn Header="X" DisplayMemberBinding="{Binding Position.X, StringFormat=F3}" Width="70"/>
+                                <GridViewColumn Header="Y" DisplayMemberBinding="{Binding Position.Y, StringFormat=F3}" Width="70"/>
+                                <GridViewColumn Header="Z" DisplayMemberBinding="{Binding Position.Z, StringFormat=F3}" Width="70"/>
+                                <GridViewColumn Header="U" DisplayMemberBinding="{Binding Position.U, StringFormat=F3}" Width="70"/>
+                                <GridViewColumn Header="V" DisplayMemberBinding="{Binding Position.V, StringFormat=F3}" Width="70"/>
+                                <GridViewColumn Header="W" DisplayMemberBinding="{Binding Position.W, StringFormat=F3}" Width="70"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                    <!-- Position Control Buttons -->
+                    <Grid Grid.Row="2" Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Button Grid.Row="0" Content="Move To Selected Position" Click="MoveToPosition_Click" Padding="5"/>
+
+                        <!-- Teach Position Controls -->
+                        <GroupBox Grid.Row="1" Header="Teach Position" Margin="0,10,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Enter position name:" Margin="0,0,0,5"/>
+                                <TextBox Grid.Row="1" Grid.Column="0" x:Name="TeachPositionNameTextBox" Margin="0,0,5,0"/>
+                                <Button Grid.Row="1" Grid.Column="1" Content="Teach" Click="TeachPosition_Click" Padding="10,0"/>
+                            </Grid>
+                        </GroupBox>
+
+                        <!-- Save and refresh buttons -->
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Center">
+                            <Button Content="Save Positions" Click="SavePositions_Click" Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Refresh Positions" Click="RefreshPositions_Click" Padding="10,5"/>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
-            </Grid>
-        </GroupBox>
+            </GroupBox>
+
+            <!-- Tab control for additional functionalities -->
+            <TabControl Grid.Row="1" Margin="0,10,0,0">
+                <TabItem Header="Path Planning">
+                    <!-- Using a content presenter to dynamically load the path control -->
+                    <ContentPresenter x:Name="PathPlanningContentPresenter" />
+                </TabItem>
+                <!-- Additional tabs can be added here later -->
+            </TabControl>
+        </Grid>
     </Grid>
 </UserControl>

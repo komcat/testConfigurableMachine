@@ -1,0 +1,86 @@
+﻿<UserControl x:Class="testConfigurableMachine.PathControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:testConfigurableMachine"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Device Info -->
+        <GroupBox Grid.Row="0" Header="Device Information" Margin="5">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock Text="Device: " FontWeight="Bold"/>
+                    <TextBlock x:Name="DeviceIdTextBlock" Text="--" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Current Position: " FontWeight="Bold"/>
+                    <TextBlock x:Name="CurrentPositionTextBlock" Text="Unknown" />
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Path Info -->
+        <GroupBox Grid.Row="1" Header="Path Information" Margin="5">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <TextBlock Text="Graph: " FontWeight="Bold"/>
+                    <TextBlock x:Name="GraphIdTextBlock" Text="--" />
+                </StackPanel>
+                <TextBlock Text="Available Destinations:" FontWeight="Bold" Margin="0,5,0,5"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Destinations List -->
+        <Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="1" Margin="5">
+            <Grid>
+                <ListView x:Name="DestinationsListView" 
+                          SelectionChanged="DestinationsListView_SelectionChanged"
+                          SelectionMode="Single">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Padding="5,2"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <!-- Shown when no destinations are available -->
+                <TextBlock x:Name="NoDestinationsTextBlock" 
+                           Text="No destinations available from current position. Make sure the device is at a known position defined in the graph." 
+                           TextWrapping="Wrap" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" 
+                           Margin="20" 
+                           Foreground="Gray"
+                           Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+
+        <!-- Controls -->
+        <Grid Grid.Row="3" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
+                <Button x:Name="RefreshButton" Content="Refresh Destinations" Click="RefreshButton_Click" Padding="10,5" Margin="0,0,10,0"/>
+                <Button x:Name="MoveToDestinationButton" Content="Move To Selected Destination" Click="MoveToDestinationButton_Click" Padding="10,5" IsEnabled="False"/>
+            </StackPanel>
+
+            <!-- Status -->
+            <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,0">
+                <TextBlock x:Name="StatusTextBlock" Text="Ready" Padding="5" />
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

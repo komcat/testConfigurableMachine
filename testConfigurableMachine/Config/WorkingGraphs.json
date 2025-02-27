@@ -20,8 +20,18 @@
           "weight": 1
         },
         {
+          "from": "ApproachLensGrip",
+          "to": "Home",
+          "weight": 1
+        },
+        {
           "from": "Home",
           "to": "ApproachLensPlace",
+          "weight": 1
+        },
+        {
+          "from": "ApproachLensPlace",
+          "to": "Home",
           "weight": 1
         },
         {
@@ -29,9 +39,10 @@
           "to": "ParkInside",
           "weight": 1
         },
+
         {
-          "from": "Home",
-          "to": "ApproachLensGrip",
+          "from": "ParkInside",
+          "to": "Home",
           "weight": 1
         },
         {
@@ -40,13 +51,29 @@
           "weight": 1
         },
         {
+          "from": "ApproachLensPlace",
+          "to": "ApproachLensGrip",
+          "weight": 1
+        },
+        {
           "from": "ApproachLensGrip",
           "to": "LensGrip",
+          "weight": 1
+        },
+
+        {
+          "from": "LensGrip",
+          "to": "ApproachLensGrip",
           "weight": 1
         },
         {
           "from": "ApproachLensPlace",
           "to": "LensPlace",
+          "weight": 1
+        },
+        {
+          "from": "LensPlace",
+          "to": "ApproachLensPlace",
           "weight": 1
         },
         {

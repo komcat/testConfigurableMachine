@@ -53,10 +53,34 @@ namespace testConfigurableMachine
 
             PositionsListView.ItemsSource = Positions;
 
+
+            InitializePathPlanning();
+
             // Start position updates
             StartPositionUpdates();
         }
 
+
+        // Then add this code to your DeviceControl.xaml.cs constructor, after InitializeComponent():
+
+        // Modify your InitializePathPlanning method in DeviceControl.xaml.cs
+        private void InitializePathPlanning()
+        {
+            try
+            {
+                // Create the path planning control
+                var pathControl = new PathControl(_motionKernel, _device);
+
+                // Assign it to the content presenter
+                PathPlanningContentPresenter.Content = pathControl;
+
+                _logger.Information("Path planning initialized for device {DeviceId}", _deviceId);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error initializing path planning for device {DeviceId}", _deviceId);
+            }
+        }
         // Position update timer
         private async void StartPositionUpdates()
         {
