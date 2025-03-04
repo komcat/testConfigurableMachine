@@ -396,7 +396,102 @@ namespace MotionServiceLib
                 return null;
             }
         }
+        /// <summary>
+        /// Gets the name of the current position of the device, or the closest named position
+        /// </summary>
+        /// <param name="deviceId">The device ID</param>
+        /// <param name="tolerance">Optional tolerance for position matching (default: 0.1)</param>
+        /// <returns>The name of the current/closest position, or "Unknown" if not at a named position</returns>
+        public async Task<string> GetCurrentPositionNameAsync(string deviceId, double tolerance = 0.1)
+        {
+            if (!_controllers.TryGetValue(deviceId, out var controller))
+            {
+                _logger.Warning("Cannot get position name: Device {DeviceId} not found or not enabled", deviceId);
+                return "Unknown";
+            }
 
+            try
+            {
+                // Get the current position
+                var currentPosition = await controller.GetCurrentPositionAsync();
+                if (currentPosition == null)
+                {
+                    return "Unknown";
+                }
+
+                // Get the device from config
+                var device = _config.Devices.Find(d => d.Id == deviceId);
+                if (device == null || device.Positions.Count == 0)
+                {
+                    return "Unknown";
+                }
+
+                // Find exact or closest match
+                string closestName = "Unknown";
+                double minDistance = double.MaxValue;
+
+                foreach (var position in device.Positions)
+                {
+                    // Calculate distance between current position and this named position
+                    double distance = CalculatePositionDistance(currentPosition, position.Value, device.Type);
+
+                    // If within tolerance, consider it an exact match
+                    if (distance <= tolerance)
+                    {
+                        return position.Key;
+                    }
+
+                    // Track the closest position
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        closestName = position.Key;
+                    }
+                }
+
+                // If we get here, we're not at an exact match, return the closest one
+                // with distance information
+                if (minDistance < double.MaxValue)
+                {
+                    _logger.Debug("Device {DeviceId} is closest to position {PositionName} (distance: {Distance})",
+                        deviceId, closestName, minDistance);
+                    return closestName;
+                }
+
+                return "Unknown";
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting current position name for device {DeviceId}", deviceId);
+                return "Unknown";
+            }
+        }
+
+        /// <summary>
+        /// Calculates the Euclidean distance between two positions, taking device type into account
+        /// </summary>
+        private double CalculatePositionDistance(Position position1, Position position2, MotionDeviceType deviceType)
+        {
+            // For gantry devices, consider only X, Y, Z
+            if (deviceType == MotionDeviceType.Gantry)
+            {
+                return Math.Sqrt(
+                    Math.Pow(position1.X - position2.X, 2) +
+                    Math.Pow(position1.Y - position2.Y, 2) +
+                    Math.Pow(position1.Z - position2.Z, 2)
+                );
+            }
+
+            // For hexapod devices, consider all coordinates X, Y, Z, U, V, W
+            return Math.Sqrt(
+                Math.Pow(position1.X - position2.X, 2) +
+                Math.Pow(position1.Y - position2.Y, 2) +
+                Math.Pow(position1.Z - position2.Z, 2) +
+                Math.Pow(position1.U - position2.U, 2) +
+                Math.Pow(position1.V - position2.V, 2) +
+                Math.Pow(position1.W - position2.W, 2)
+            );
+        }
         public async Task<bool> HomeDeviceAsync(string deviceId)
         {
             if (!_controllers.TryGetValue(deviceId, out var controller))

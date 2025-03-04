@@ -286,14 +286,16 @@
                 </Grid>
             </GroupBox>
 
-            <!-- Tab control for additional functionalities -->
-            <TabControl Grid.Row="1" Margin="0,10,0,0">
-                <TabItem Header="Path Planning">
-                    <!-- Using a content presenter to dynamically load the path control -->
-                    <ContentPresenter x:Name="PathPlanningContentPresenter" />
-                </TabItem>
-                <!-- Additional tabs can be added here later -->
-            </TabControl>
+            <!-- Advanced Features Section with Expander -->
+            <Expander Header="Advanced Features" Grid.Row="1" Margin="5,10,5,0" IsExpanded="False">
+                <TabControl Margin="0,5,0,0">
+                    <TabItem Header="Path Planning">
+                        <!-- Using a content presenter to dynamically load the path control -->
+                        <ContentPresenter x:Name="PathPlanningContentPresenter" />
+                    </TabItem>
+                    <!-- Additional tabs can be added here later -->
+                </TabControl>
+            </Expander>
         </Grid>
     </Grid>
 </UserControl>

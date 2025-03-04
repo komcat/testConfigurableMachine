@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PI;
 using MotionServiceLib;
+using System.Windows;
 
 namespace MotionServiceLib
 {
@@ -620,7 +621,8 @@ namespace MotionServiceLib
                     int result = GCS2.VLS(_controllerId, velocity);
                     if (result == PI_RESULT_FAILURE)
                     {
-                        throw new InvalidOperationException($"Failed to set system velocity for Hexapod {_device.Name}");
+                        Log.Error($"Failed to set system velocity for Hexapod {_device.Name}");
+                        MessageBox.Show($"Failed to set system velocity for Hexapod {_device.Name}");
                     }
                 });
 

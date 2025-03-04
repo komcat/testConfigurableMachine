@@ -158,7 +158,33 @@ namespace MotionServiceLib
 
             return edges.Select(e => e.To).Distinct().ToList();
         }
+        /// <summary>
+        /// Finds the shortest path between two positions for a specific device
+        /// </summary>
+        /// <param name="deviceId">The device ID</param>
+        /// <param name="startPosition">The starting position name</param>
+        /// <param name="endPosition">The destination position name</param>
+        /// <returns>List of position names in the path, or empty list if no path exists</returns>
+        public List<string> FindShortestPath(string deviceId, string startPosition, string endPosition)
+        {
+            var device = _motionKernel.GetDevices().FirstOrDefault(d => d.Id == deviceId);
+            if (device == null)
+            {
+                _logger.Warning("Cannot find path: Device {DeviceId} not found", deviceId);
+                return new List<string>();
+            }
 
+            // Determine graph ID for this device
+            string graphId = GetGraphIdForDevice(device);
+            if (string.IsNullOrEmpty(graphId))
+            {
+                _logger.Warning("Cannot find path: No graph found for device {DeviceId}", deviceId);
+                return new List<string>();
+            }
+
+            // Now find the path using the graph ID
+            return FindPath(graphId, startPosition, endPosition);
+        }
         /// <summary>
         /// Finds the shortest path between two positions in a graph
         /// </summary>

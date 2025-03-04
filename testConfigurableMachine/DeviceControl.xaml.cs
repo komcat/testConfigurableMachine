@@ -438,8 +438,22 @@ namespace testConfigurableMachine
                     // Force ListView to refresh
                     PositionsListView.Items.Refresh();
 
-                    MessageBox.Show($"Position '{positionName}' saved successfully.", "Success",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    // Save to JSON file automatically
+                    bool saveSuccess = await _motionKernel.SavePositionsToJsonAsync();
+
+                    if (saveSuccess)
+                    {
+                        _logger.Information("Position '{PositionName}' saved and configuration updated", positionName);
+                        MessageBox.Show($"Position '{positionName}' saved successfully and configuration updated.",
+                            "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        _logger.Warning("Position '{PositionName}' added but failed to save to configuration file", positionName);
+                        MessageBox.Show($"Position '{positionName}' added but failed to save to configuration file. " +
+                            $"Please use the 'Save Positions' button.",
+                            "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
 
                     // Clear the name textbox
                     TeachPositionNameTextBox.Text = string.Empty;
@@ -457,7 +471,6 @@ namespace testConfigurableMachine
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         private async void SavePositions_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -514,7 +527,24 @@ namespace testConfigurableMachine
 
         private void PositionsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // This can be used to show detailed information about the selected position
+            // Get the selected position item
+            var selectedItem = PositionsListView.SelectedItem as PositionItem;
+
+            if (selectedItem != null)
+            {
+                // Populate the TeachPositionNameTextBox with the name of the selected position
+                TeachPositionNameTextBox.Text = selectedItem.Name;
+
+                // Optional: Log the selection
+                _logger.Debug("Selected position: {PositionName}", selectedItem.Name);
+
+                // Optional: You could also update a status text or enable/disable buttons based on selection
+            }
+            else
+            {
+                // Clear the TextBox if no item is selected
+                TeachPositionNameTextBox.Text = string.Empty;
+            }
         }
 
         #endregion
