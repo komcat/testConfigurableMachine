@@ -396,6 +396,98 @@ namespace MotionServiceLib
                 return null;
             }
         }
+
+
+        /// <summary>
+        /// Sets the pivot point coordinates for a hexapod device
+        /// </summary>
+        /// <param name="deviceIdOrName">ID or name of the hexapod device</param>
+        /// <param name="x">X coordinate of pivot point</param>
+        /// <param name="y">Y coordinate of pivot point</param>
+        /// <param name="z">Z coordinate of pivot point</param>
+        /// <returns>True if successful, false otherwise</returns>
+        public async Task<bool> SetHexapodPivotPointAsync(string deviceIdOrName, double x, double y, double z)
+        {
+            // First try to find the device directly by ID
+            if (_controllers.TryGetValue(deviceIdOrName, out var controller))
+            {
+                if (!(controller is HexapodController hexapodController))
+                {
+                    _logger.Warning("Cannot set pivot point: Device {DeviceId} is not a hexapod", deviceIdOrName);
+                    return false;
+                }
+
+                try
+                {
+                    _logger.Information("Setting pivot point for device {DeviceId} to X={X}, Y={Y}, Z={Z}",
+                        deviceIdOrName, x, y, z);
+                    await hexapodController.SetPivotPointAsync(x, y, z);
+                    _logger.Information("Successfully set pivot point for device {DeviceId}", deviceIdOrName);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Error setting pivot point for device {DeviceId}", deviceIdOrName);
+                    return false;
+                }
+            }
+
+           
+
+            // No matching device found
+            _logger.Warning("Cannot set pivot point: No hexapod device found with ID or name '{DeviceIdOrName}'", deviceIdOrName);
+            return false;
+        }
+
+
+        /// <summary>
+        /// Gets the pivot point (rotation center) of a hexapod device
+        /// </summary>
+        /// <param name="deviceId">The device ID of the hexapod</param>
+        /// <returns>The pivot point as a Position object, or null if retrieval fails</returns>
+        public async Task<Position> GetHexapodPivotPointAsync(string deviceId)
+        {
+            if (!_controllers.TryGetValue(deviceId, out var controller))
+            {
+                _logger.Warning("Cannot get pivot point: Device {DeviceId} not found or not enabled", deviceId);
+                return null;
+            }
+
+            // Check if the controller is a hexapod controller
+            if (!(controller is HexapodController hexapodController))
+            {
+                _logger.Warning("Cannot get pivot point: Device {DeviceId} is not a hexapod device", deviceId);
+                return null;
+            }
+
+            try
+            {
+                _logger.Information("Getting pivot point for hexapod device {DeviceId}", deviceId);
+
+                // Get the pivot point from the hexapod controller
+                var pivotPoint = await hexapodController.GetPivotPoint();
+
+                if (pivotPoint != null)
+                {
+                    _logger.Information("Hexapod {DeviceId} pivot point: X={X}, Y={Y}, Z={Z}",
+                        deviceId, pivotPoint.X, pivotPoint.Y, pivotPoint.Z);
+
+                    return pivotPoint;
+                }
+                else
+                {
+                    _logger.Warning("Failed to get pivot point for hexapod {DeviceId}", deviceId);
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting pivot point for hexapod {DeviceId}", deviceId);
+                return null;
+            }
+        }
+
+
         /// <summary>
         /// Gets the name of the current position of the device, or the closest named position
         /// </summary>
@@ -711,7 +803,6 @@ namespace MotionServiceLib
         }
 
 
-
         /// <summary>
         /// Checks if a controller exists for the specified device
         /// </summary>
@@ -768,6 +859,8 @@ namespace MotionServiceLib
                 return null;
             }
         }
+
+      
 
         #endregion
 

@@ -564,6 +564,59 @@ namespace MotionServiceLib
                 throw;
             }
         }
+
+        /// <summary>
+        /// Gets the current pivot point (rotation center) of the hexapod
+        /// </summary>
+        /// <returns>The current pivot point coordinates as a Position object, or null if retrieval fails</returns>
+        public async Task<Position> GetPivotPoint()
+        {
+            ValidateConnection();
+
+            try
+            {
+                _logger.Information("Getting pivot point for Hexapod {DeviceName}", _device.Name);
+
+                // Initialize buffer for pivot point values
+                double[] pivotValues = new double[3]; // X, Y, Z coordinates
+
+                bool success = await Task.Run(() =>
+                {
+                    // Use qSPI to query the pivot point (rotation center)
+                    int result = GCS2.qSPI(_controllerId, "ROT", pivotValues);
+                    return result > 0;
+                });
+
+                if (success)
+                {
+                    _logger.Information("Hexapod {DeviceName} pivot point: X={X}, Y={Y}, Z={Z}",
+                        _device.Name, pivotValues[0], pivotValues[1], pivotValues[2]);
+
+                    // Return as a Position object to be consistent with other methods
+                    return new Position
+                    {
+                        X = pivotValues[0],
+                        Y = pivotValues[1],
+                        Z = pivotValues[2],
+                        U = 0, // Pivot point doesn't include rotation values
+                        V = 0,
+                        W = 0
+                    };
+                }
+                else
+                {
+                    _logger.Error("Failed to get pivot coordinates for Hexapod {DeviceName}", _device.Name);
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting pivot point for Hexapod {DeviceName}", _device.Name);
+                throw;
+            }
+        }
+
+
         // Add this to HexapodController.cs
         public Task SetSpeedAsync(double speed)
         {
@@ -633,6 +686,20 @@ namespace MotionServiceLib
                 _logger.Error(ex, "Error setting system velocity for Hexapod {DeviceName}", _device.Name);
                 throw;
             }
+        }
+
+
+        
+
+
+        /// <summary>
+        /// Helper method to get a description for PI error codes
+        /// </summary>
+        private string GetErrorDescription(int errorCode)
+        {
+            StringBuilder errorBuffer = new StringBuilder(1024);
+            PI.GCS2.TranslateError(errorCode, errorBuffer, errorBuffer.Capacity);
+            return errorBuffer.ToString();
         }
 
         #endregion
