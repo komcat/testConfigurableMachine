@@ -21,7 +21,7 @@ namespace testConfigurableMachine
         private double _currentStepSize = 0.01; // Default step size
         private readonly ILogger _logger;
         private Dictionary<string, TransformationMatrix> _deviceTransformations;
-
+        private RotationJogHandler _rotationJogHandler;
         public ObservableCollection<DeviceViewModel> Devices { get; set; } = new ObservableCollection<DeviceViewModel>();
 
         public GlobalJogControl(MotionKernel kernel)
@@ -31,6 +31,8 @@ namespace testConfigurableMachine
             _motionKernel = kernel;
             _logger = Log.ForContext<GlobalJogControl>();
 
+
+
             // Load transformation matrices
             LoadTransformationMatrices();
 
@@ -39,6 +41,9 @@ namespace testConfigurableMachine
 
             // Select default step size
             SelectDefaultStepSize();
+
+
+            _rotationJogHandler=new RotationJogHandler(_motionKernel);
         }
 
         private void LoadTransformationMatrices()
@@ -173,6 +178,43 @@ namespace testConfigurableMachine
         {
             await MoveSelectedDevices(Direction.Out);
         }
+
+        private async void UPlus_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedDevices = Devices.Where(d => d.IsSelected).Select(d => d.Id);
+            await _rotationJogHandler.ApplyRotationAsync(selectedDevices, RotationJogHandler.RotationDirection.UPlus);
+        }
+
+        private async void UMinus_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedDevices = Devices.Where(d => d.IsSelected).Select(d => d.Id);
+            await _rotationJogHandler.ApplyRotationAsync(selectedDevices, RotationJogHandler.RotationDirection.UMinus);
+        }
+
+        private async void VPlus_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedDevices = Devices.Where(d => d.IsSelected).Select(d => d.Id);
+            await _rotationJogHandler.ApplyRotationAsync(selectedDevices, RotationJogHandler.RotationDirection.VPlus);
+        }
+
+        private async void VMinus_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedDevices = Devices.Where(d => d.IsSelected).Select(d => d.Id);
+            await _rotationJogHandler.ApplyRotationAsync(selectedDevices, RotationJogHandler.RotationDirection.VMinus);
+        }
+
+        private async void WPlus_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedDevices = Devices.Where(d => d.IsSelected).Select(d => d.Id);
+            await _rotationJogHandler.ApplyRotationAsync(selectedDevices, RotationJogHandler.RotationDirection.WPlus);
+        }
+
+        private async void WMinus_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedDevices = Devices.Where(d => d.IsSelected).Select(d => d.Id);
+            await _rotationJogHandler.ApplyRotationAsync(selectedDevices, RotationJogHandler.RotationDirection.WMinus);
+        }
+
 
         #endregion
 

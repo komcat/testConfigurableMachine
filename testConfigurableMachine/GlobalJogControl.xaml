@@ -63,10 +63,28 @@
                         FontWeight="Bold" Margin="5" Click="Right_Click"/>
 
                 <!-- Down, Out Buttons -->
-                <Button Grid.Row="2" Grid.Column="3" Content="Down" Background="Cyan" Width="50" Height="40" 
+                <Button Grid.Row="1" Grid.Column="3" Content="Down" Background="Cyan" Width="50" Height="40" 
                         FontWeight="Bold" Margin="5" Click="Down_Click"/>
                 <Button Grid.Row="1" Grid.Column="1" Content="Out" Background="Yellow" Width="50" Height="40" 
                         FontWeight="Bold" Margin="5" Click="Out_Click"/>
+                <StackPanel Grid.Column="0" Grid.Row="2">
+                    <UniformGrid Rows="2">
+                        <Button Content="U+" Margin="2" Background="Chartreuse" Height="20" Click="UPlus_Click"/>
+                        <Button Content="U-" Margin="2" Background="Chartreuse" Height="20" Click="UMinus_Click"/>
+                    </UniformGrid>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Grid.Row="2">
+                    <UniformGrid Rows="2">
+                        <Button Content="V+" Margin="2" Background="Orchid" Height="20" Click="VPlus_Click"/>
+                        <Button Content="V-" Margin="2" Background="Orchid" Height="20" Click="VMinus_Click"/>
+                    </UniformGrid>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Grid.Row="2">
+                    <UniformGrid Rows="2">
+                        <Button Content="W+" Margin="2" Background="PowderBlue" Height="20" Click="WPlus_Click"/>
+                        <Button Content="W-" Margin="2" Background="PowderBlue" Height="20" Click="WMinus_Click"/>
+                    </UniformGrid>
+                </StackPanel>
             </Grid>
 
             <!-- Right Panel - Step Size Selection -->
@@ -88,6 +106,7 @@
                     <ListBoxItem Content="0.02" Tag="0.02" />
                     <ListBoxItem Content="0.05" Tag="0.05" />
                     <ListBoxItem Content="0.1" Tag="0.1" />
+                    <ListBoxItem Content="0.3" Tag="0.3" />
                     <ListBoxItem Content="0.5" Tag="0.5" />
                     <ListBoxItem Content="1.0" Tag="1.0" />
                 </ListBox>
