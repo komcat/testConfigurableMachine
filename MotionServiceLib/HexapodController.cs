@@ -552,7 +552,7 @@ namespace MotionServiceLib
                     int result = GCS2.SPI(_controllerId, PIVOT_AXIS_IDENTIFIER, pivotPoint);
                     if (result == PI_RESULT_FAILURE)
                     {
-                        throw new InvalidOperationException($"Failed to set pivot point for Hexapod {_device.Name}");
+                        _logger.Error($"Failed to set pivot point for Hexapod {_device.Name}");
                     }
                 });
 

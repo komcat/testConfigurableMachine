@@ -133,6 +133,12 @@ namespace testConfigurableMachine
             {
                 _currentStepSize = stepSize;
                 _logger.Debug("Step size changed to {StepSize}", _currentStepSize);
+
+                if(_rotationJogHandler != null)
+                {
+                    _rotationJogHandler.SetStepSize(_currentStepSize);
+                }
+
             }
         }
 
