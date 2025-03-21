@@ -17,6 +17,9 @@ namespace MotionServiceLib
         private readonly MotionDevice _device;
 
         private int _controllerId = -1;
+        public int ControllerId => _controllerId;
+        public string ControllerName => _device.Name;
+
         private bool _disposed;
         private System.Timers.Timer _positionUpdateTimer;
 
