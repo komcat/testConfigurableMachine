@@ -24,6 +24,12 @@ namespace MotionServiceLib.Controls
         // Add this public event
         public event EventHandler<AnalogChannelUpdateEventArgs> AnalogDataUpdated;
 
+        // Add a debounce mechanism for very frequent updates
+        private DateTime _lastUIUpdate = DateTime.MinValue;
+        private readonly TimeSpan _minUpdateInterval = TimeSpan.FromMilliseconds(100); // 10fps max refresh rate
+                                                                                       // Add retry logic for monitoring failures
+        private int _monitoringRetryCount = 0;
+        private const int MAX_RETRY_COUNT = 3;
 
         /// <summary>
         /// Creates a new instance of the HexapodAnalogMonitorControl
@@ -33,6 +39,9 @@ namespace MotionServiceLib.Controls
             InitializeComponent();
             ChannelsDataGrid.ItemsSource = _channelViewModels;
             _analogUpdateHandler = OnAnalogUpdate;
+
+            // Connect the Unloaded event
+            this.Unloaded += UserControl_Unloaded;
         }
 
         /// <summary>
@@ -157,7 +166,14 @@ namespace MotionServiceLib.Controls
         /// <summary>
         /// Starts monitoring analog channels
         /// </summary>
-        private void StartMonitoring()
+        private async void StartMonitoring()
+        {
+            // Reset retry counter
+            _monitoringRetryCount = 0;
+            await StartMonitoringWithRetry();
+        }
+
+        private async Task StartMonitoringWithRetry()
         {
             if (_controller == null || _monitoredChannels == null || _monitoredChannels.Length == 0)
                 return;
@@ -181,11 +197,31 @@ namespace MotionServiceLib.Controls
                     StatusTextBlock.Text = "Monitoring";
                     StatusTextBlock.Foreground = System.Windows.Media.Brushes.Green;
                     UpdateRateTextBox.IsEnabled = false;
+
+                    // Reset retry counter on success
+                    _monitoringRetryCount = 0;
+                }
+                else if (_monitoringRetryCount < MAX_RETRY_COUNT)
+                {
+                    _monitoringRetryCount++;
+                    StatusTextBlock.Text = $"Retry {_monitoringRetryCount}/{MAX_RETRY_COUNT}...";
+                    StatusTextBlock.Foreground = System.Windows.Media.Brushes.Orange;
+
+                    // Wait a moment and retry
+                    await Task.Delay(1000);
+                    await StartMonitoringWithRetry();
                 }
                 else
                 {
-                    MessageBox.Show("Failed to start monitoring.", "Error",
+                    MessageBox.Show($"Failed to start monitoring after {MAX_RETRY_COUNT} attempts.", "Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    // Reset UI to non-monitoring state
+                    _isMonitoring = false;
+                    StartStopButton.Content = "Start Monitoring";
+                    StatusTextBlock.Text = "Not Monitoring";
+                    StatusTextBlock.Foreground = System.Windows.Media.Brushes.Gray;
+                    UpdateRateTextBox.IsEnabled = true;
                 }
             }
             catch (Exception ex)
@@ -194,7 +230,6 @@ namespace MotionServiceLib.Controls
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
         /// <summary>
         /// Stops monitoring analog channels
         /// </summary>
@@ -222,6 +257,7 @@ namespace MotionServiceLib.Controls
         /// <summary>
         /// Refreshes analog values one time
         /// </summary>
+        // Modify RefreshAnalogValues to always update UI on the UI thread
         private async Task RefreshAnalogValues()
         {
             if (_controller == null || _monitoredChannels == null || _monitoredChannels.Length == 0)
@@ -229,74 +265,87 @@ namespace MotionServiceLib.Controls
 
             try
             {
-                Dictionary<int, double> values = await _controller.GetAnalogVoltagesAsync(_monitoredChannels);
+                // Get values off the UI thread
+                Dictionary<int, double> values = await Task.Run(() =>
+                    _controller.GetAnalogVoltagesAsync(_monitoredChannels).GetAwaiter().GetResult());
 
-                if (values != null)
+                // Update UI on UI thread (we're already on UI thread in this method, but being explicit)
+                await Dispatcher.InvokeAsync(() =>
                 {
-                    UpdateAnalogValues(values);
-                }
-                else
-                {
-                    foreach (var vm in _channelViewModels)
+                    if (values != null)
                     {
-                        vm.Status = "Read Failed";
+                        UpdateAnalogValues(values);
                     }
-                }
+                    else
+                    {
+                        foreach (var vm in _channelViewModels)
+                        {
+                            vm.Status = "Read Failed";
+                        }
+                    }
+                });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error reading analog values: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                await Dispatcher.InvokeAsync(() =>
+                {
+                    MessageBox.Show($"Error reading analog values: {ex.Message}", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                });
             }
         }
-
         /// <summary>
         /// Event handler for analog updates during monitoring
         /// </summary>
         private void OnAnalogUpdate(object sender, AnalogChannelUpdateEventArgs e)
         {
-            // Add debugging to verify this is being called
-            //Console.WriteLine($"Received update with {e.ChannelValues.Count} values");
-
-            // Since this event comes from a background thread, we need to use the Dispatcher
-            Dispatcher.Invoke(() =>
+            // Only update UI at a reasonable rate to prevent freezing
+            if (DateTime.Now - _lastUIUpdate < _minUpdateInterval)
             {
-                UpdateAnalogValues(e.ChannelValues);
-            });
-
-            // Forward the event to subscribers
-            AnalogDataUpdated?.Invoke(this, e);
-        }
-
-        /// <summary>
-        /// Updates the view models with the latest values
-        /// </summary>
-        private void UpdateAnalogValues(Dictionary<int, double> values)
-        {
-            if (values == null || values.Count == 0)
-            {
-                Console.WriteLine("UpdateAnalogValues called with empty or null values");
+                // Skip this update to avoid UI thread overload
                 return;
             }
 
-            //Console.WriteLine($"Updating UI with values: {string.Join(", ", values.Select(kv => $"Ch{kv.Key}={kv.Value}"))}");
+            Dispatcher.InvokeAsync(() =>
+            {
+                UpdateAnalogValues(e.ChannelValues);
+                _lastUIUpdate = DateTime.Now;
+
+                // Forward the event to subscribers
+                AnalogDataUpdated?.Invoke(this, e);
+            });
+        }
+        /// <summary>
+        /// Updates the view models with the latest values
+        /// </summary>
+        // Modify the UpdateAnalogValues method to avoid unnecessary refreshes
+        private void UpdateAnalogValues(Dictionary<int, double> values)
+        {
+            if (values == null || values.Count == 0)
+                return;
 
             DateTime updateTime = DateTime.Now;
+            string timeString = updateTime.ToString("HH:mm:ss.fff");
+
+            // Use batch updates if possible
+            // If using .NET 4.5+, you can use:
+            // ChannelsDataGrid.BeginInit();
+
             foreach (var vm in _channelViewModels)
             {
                 if (values.TryGetValue(vm.ChannelId, out double value))
                 {
-                    // Force property change notification
                     vm.Value = value;
-                    vm.Status = $"Updated at {updateTime.ToString("HH:mm:ss.fff")}";
-
-                    // Debug
-                    //Console.WriteLine($"Updated channel {vm.ChannelId} to {value}V, status: {vm.Status}");
+                    vm.Status = $"Updated at {timeString}";
                 }
             }
 
-            // Force refresh of the DataGrid if needed
-            ChannelsDataGrid.Items.Refresh();
+            // ChannelsDataGrid.EndInit();
+
+            // Only refresh if absolutely necessary - INotifyPropertyChanged should
+            // handle individual cell updates automatically
+            // The following line should ideally be removed:
+            // ChannelsDataGrid.Items.Refresh();
         }
         /// <summary>
         /// Clean up any resources when control is unloaded
