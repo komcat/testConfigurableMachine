@@ -15,6 +15,8 @@ namespace MotionServiceLib
         private static readonly ILogger _logger = Log.ForContext(typeof(MotionKernelPathPlanningExtensions));
         private static MotionPathPlanner _pathPlanner;
 
+        
+
         /// <summary>
         /// Gets or creates a path planner instance
         /// </summary>
@@ -33,7 +35,8 @@ namespace MotionServiceLib
         public static async Task<bool> MoveToDestinationShortestPathAsync(
             this MotionKernel kernel,
             string deviceId,
-            string destinationPosition)
+            string destinationPosition,
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -61,14 +64,31 @@ namespace MotionServiceLib
                     return await kernel.MoveToPositionAsync(deviceId, destinationPosition);
                 }
 
-                // Move along the path
-                return await pathPlanner.MoveAlongPathAsync(deviceId, path);
+                // Pass the cancellation token
+                return await pathPlanner.MoveAlongPathAsync(deviceId, path, cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error moving device {DeviceId} to destination {DestinationPosition}",
                     deviceId, destinationPosition);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Cancels any currently executing path planning operation
+        /// </summary>
+        /// <param name="kernel">The motion kernel</param>
+        /// <param name="deviceId">The device ID to also stop immediately (optional)</param>
+        public static void CancelPathExecution(this MotionKernel kernel, string deviceId = null)
+        {
+            var pathPlanner = GetPathPlanner(kernel);
+            pathPlanner.CancelPathExecution();
+
+            // Also stop the device immediately if a deviceId is provided
+            if (!string.IsNullOrEmpty(deviceId))
+            {
+                _ = kernel.StopDeviceAsync(deviceId);
             }
         }
     }

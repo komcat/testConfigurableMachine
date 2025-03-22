@@ -178,6 +178,7 @@ namespace MotionServiceLib
 
         #region Device Management
 
+
         public async Task InitializeAsync()
         {
             // Log total devices and how many are enabled

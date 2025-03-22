@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
 
@@ -16,7 +17,7 @@ namespace MotionServiceLib
         private readonly MotionKernel _motionKernel;
         private readonly ILogger _logger;
         private GraphData _graphData;
-
+        private CancellationTokenSource _cancellationTokenSource;
         /// <summary>
         /// Creates a new instance of the MotionPathPlanner
         /// </summary>
@@ -221,7 +222,7 @@ namespace MotionServiceLib
         /// <param name="deviceId">The device ID</param>
         /// <param name="path">The list of position names to visit</param>
         /// <returns>True if successful, false otherwise</returns>
-        public async Task<bool> MoveAlongPathAsync(string deviceId, List<string> path)
+        public async Task<bool> MoveAlongPathAsync(string deviceId, List<string> path, CancellationToken cancellationToken = default)
         {
             if (path == null || path.Count == 0)
             {
@@ -232,23 +233,63 @@ namespace MotionServiceLib
             _logger.Information("Moving device {DeviceId} along path: {Path}",
                 deviceId, string.Join(" -> ", path));
 
-            // Move to each position in sequence
-            for (int i = 0; i < path.Count; i++)
+            try
             {
-                string positionName = path[i];
-                _logger.Information("Moving to waypoint {Index}/{Total}: {Position}",
-                    i + 1, path.Count, positionName);
+                // Create a new CancellationTokenSource linked to the provided token
+                _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-                bool success = await _motionKernel.MoveToPositionAsync(deviceId, positionName);
-                if (!success)
+                // Move to each position in sequence
+                for (int i = 0; i < path.Count; i++)
                 {
-                    _logger.Error("Failed to move to position {Position}", positionName);
-                    return false;
+                    // Check for cancellation before each move
+                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                    string positionName = path[i];
+                    _logger.Information("Moving to waypoint {Index}/{Total}: {Position}",
+                        i + 1, path.Count, positionName);
+
+                    bool success = await _motionKernel.MoveToPositionAsync(deviceId, positionName);
+                    if (!success)
+                    {
+                        _logger.Error("Failed to move to position {Position}", positionName);
+                        return false;
+                    }
+
+                    // Check for cancellation after each move
+                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                }
+
+                _logger.Information("Device {DeviceId} successfully moved along path", deviceId);
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.Warning("Path execution for device {DeviceId} was cancelled", deviceId);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error moving device {DeviceId} along path", deviceId);
+                return false;
+            }
+            finally
+            {
+                // Dispose of the cancellation token source
+                if (_cancellationTokenSource != null)
+                {
+                    _cancellationTokenSource.Dispose();
+                    _cancellationTokenSource = null;
                 }
             }
+        }
 
-            _logger.Information("Device {DeviceId} successfully moved along path", deviceId);
-            return true;
+        /// <summary>
+        /// Cancels any currently executing path
+        /// </summary>
+        public void CancelPathExecution()
+        {
+            _logger.Information("Cancelling path execution");
+            _cancellationTokenSource?.Cancel();
         }
 
         /// <summary>
@@ -257,7 +298,7 @@ namespace MotionServiceLib
         /// <param name="deviceId">The device ID</param>
         /// <param name="destinationPosition">The destination position name</param>
         /// <returns>True if successful, false otherwise</returns>
-        public async Task<bool> MoveToDestinationAsync(string deviceId, string destinationPosition)
+        public async Task<bool> MoveToDestinationAsync(string deviceId, string destinationPosition, CancellationToken cancellationToken = default)
         {
             var device = _motionKernel.GetDevices().FirstOrDefault(d => d.Id == deviceId);
             if (device == null)
@@ -298,8 +339,8 @@ namespace MotionServiceLib
                 return false;
             }
 
-            // Move along the path
-            return await MoveAlongPathAsync(deviceId, path);
+            // Pass the cancellation token to MoveAlongPathAsync
+            return await MoveAlongPathAsync(deviceId, path, cancellationToken);
         }
 
         /// <summary>
