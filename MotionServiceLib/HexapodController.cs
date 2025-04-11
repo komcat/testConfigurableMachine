@@ -158,7 +158,22 @@ namespace MotionServiceLib
                     int result = GCS2.MVR(_controllerId, AXIS_IDENTIFIER, relativeMove);
                     if (result == PI_RESULT_FAILURE)
                     {
-                        throw new InvalidOperationException($"Failed to move Hexapod {_device.Name} relatively");
+                        _logger.Error($"Failed to move Hexapod {_device.Name} relatively");
+                        // Get the error code and description
+                        int errorCode = GCS2.GetError(_controllerId);
+                        string errorMessage = GetErrorDescription(errorCode);
+
+                        // Show critical error message box on UI thread
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show(
+                                $"Failed to move Hexapod {_device.Name} relatively.\nError: {errorMessage} (Code: {errorCode})",
+                                "Motion Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        });
+
+                        throw new InvalidOperationException($"Failed to move Hexapod {_device.Name} relatively: {errorMessage}");
                     }
                 });
 
