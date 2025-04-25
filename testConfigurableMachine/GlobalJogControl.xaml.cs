@@ -221,7 +221,110 @@ namespace testConfigurableMachine
             await _rotationJogHandler.ApplyRotationAsync(selectedDevices, RotationJogHandler.RotationDirection.WMinus);
         }
 
+        // Add these methods to the GlobalJogControl class
 
+        /// <summary>
+        /// Selects a device by its ID
+        /// </summary>
+        /// <param name="deviceId">The ID of the device to select</param>
+        /// <returns>True if the device was found and selected, false otherwise</returns>
+        public bool SelectDevice(string deviceId)
+        {
+            var device = Devices.FirstOrDefault(d => d.Id == deviceId);
+            if (device != null)
+            {
+                device.IsSelected = true;
+                DevicesListBox.Items.Refresh();
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Deselects a device by its ID
+        /// </summary>
+        /// <param name="deviceId">The ID of the device to deselect</param>
+        /// <returns>True if the device was found and deselected, false otherwise</returns>
+        public bool DeselectDevice(string deviceId)
+        {
+            var device = Devices.FirstOrDefault(d => d.Id == deviceId);
+            if (device != null)
+            {
+                device.IsSelected = false;
+                DevicesListBox.Items.Refresh();
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Selects all devices
+        /// </summary>
+        public void SelectAllDevices()
+        {
+            foreach (var device in Devices)
+            {
+                device.IsSelected = true;
+            }
+            DevicesListBox.Items.Refresh();
+        }
+
+        /// <summary>
+        /// Deselects all devices
+        /// </summary>
+        public void DeselectAllDevices()
+        {
+            foreach (var device in Devices)
+            {
+                device.IsSelected = false;
+            }
+            DevicesListBox.Items.Refresh();
+        }
+
+        /// <summary>
+        /// Selects multiple devices by their IDs
+        /// </summary>
+        /// <param name="deviceIds">Collection of device IDs to select</param>
+        /// <returns>The number of devices that were found and selected</returns>
+        public int SelectDevices(IEnumerable<string> deviceIds)
+        {
+            int count = 0;
+            foreach (var id in deviceIds)
+            {
+                if (SelectDevice(id))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// Deselects multiple devices by their IDs
+        /// </summary>
+        /// <param name="deviceIds">Collection of device IDs to deselect</param>
+        /// <returns>The number of devices that were found and deselected</returns>
+        public int DeselectDevices(IEnumerable<string> deviceIds)
+        {
+            int count = 0;
+            foreach (var id in deviceIds)
+            {
+                if (DeselectDevice(id))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// Gets the IDs of all currently selected devices
+        /// </summary>
+        /// <returns>Collection of selected device IDs</returns>
+        public IEnumerable<string> GetSelectedDeviceIds()
+        {
+            return Devices.Where(d => d.IsSelected).Select(d => d.Id);
+        }
         #endregion
 
         #region Movement Methods
