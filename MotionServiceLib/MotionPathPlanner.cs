@@ -256,7 +256,7 @@ namespace MotionServiceLib
                     }
 
                     // Check for cancellation after each move
-                    _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                   //_cancellationTokenSource.Token.ThrowIfCancellationRequested();
                 }
 
                 _logger.Information("Device {DeviceId} successfully moved along path", deviceId);
